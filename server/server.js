@@ -7,7 +7,10 @@ const bcrypt = require('bcryptjs');
 const path = require('path');
 
 const app = express();
-const port = process.env.PORT || 3000;  // Changed from 5000 to 3001
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
 const SECRET_KEY = 'your-secret-key'; // In a real app, use an environment variable
 
 app.use(cors({
