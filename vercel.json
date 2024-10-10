@@ -8,7 +8,7 @@
     {
       "src": "client/package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "build" }
+      "config": { "distDir": "client/build" }
     }
   ],
   "routes": [
@@ -17,7 +17,20 @@
       "dest": "server/server.js"
     },
     {
-      "handle": "filesystem"
+      "src": "^/static/(.*)",
+      "dest": "client/build/static/$1"
+    },
+    {
+      "src": "^/favicon.ico",
+      "dest": "client/build/favicon.ico"
+    },
+    {
+      "src": "^/manifest.json",
+      "dest": "client/build/manifest.json"
+    },
+    {
+      "src": "^/(.*).(js|json|css|map)",
+      "dest": "client/build/$1.$2"
     },
     {
       "src": "/(.*)",
