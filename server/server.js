@@ -99,6 +99,10 @@ app.post('/api/log', verifyToken, (req, res) => {
   );
 });
 
+app.get('/api/test', (req, res) => {
+  res.json({ message: "API is working" });
+});
+
 // New endpoint to get all logs (only accessible by authenticated users)
 app.get('/api/all-logs', verifyToken, (req, res) => {
   db.all(`
