@@ -14,9 +14,12 @@ app.listen(port, () => {
 const SECRET_KEY = 'your-secret-key'; // In a real app, use an environment variable
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000'
+  origin: process.env.VERCEL_URL || 'http://localhost:3000',
+  credentials: true
 }));
 app.use(bodyParser.json());
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, 'client/build')));
 
 // Connect to SQLite database
 const db = new sqlite3.Database(path.join(__dirname, 'stair_challenge.db'), (err) => {
@@ -119,6 +122,12 @@ app.get('/api/logs', verifyToken, (req, res) => {
 
 app.get('/', (req, res) => {
   res.json({ message: "Welcome to the Escalera Challenge API!" });
+});
+
+// The "catchall" handler: for any request that doesn't
+// match one above, send back React's index.html file.
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
 });
 
 app.listen(port, () => {
