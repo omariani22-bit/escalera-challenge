@@ -19,7 +19,7 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 // Serve static files from the React app
-app.use(express.static(path.join(__dirname, 'client/build')));
+app.use(express.static(path.join(__dirname, '../client/build')));
 
 // Connect to SQLite database
 const db = new sqlite3.Database(path.join(__dirname, 'stair_challenge.db'), (err) => {
@@ -124,10 +124,9 @@ app.get('/', (req, res) => {
   res.json({ message: "Welcome to the Escalera Challenge API!" });
 });
 
-// The "catchall" handler: for any request that doesn't
-// match one above, send back React's index.html file.
+// The catchall handler
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
 });
 
 app.listen(port, () => {

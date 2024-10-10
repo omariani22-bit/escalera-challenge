@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { User, Lock, UserPlus, Mail, AlertCircle } from 'lucide-react';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_URL = process.env.REACT_APP_API_URL || '';
 
 const InputField = ({ icon, type, placeholder, value, onChange, error }) => (
   <div className="relative">
