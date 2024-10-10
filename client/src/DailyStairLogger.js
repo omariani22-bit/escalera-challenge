@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 // import { PlusCircle, MinusCircle, Stairs, Elevator } from 'lucide-react';
 import * as Icon from 'lucide-react';
 
-const API_URL = 'http://localhost:3001';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const DailyStairLogger = () => {
   const [upstairs, setUpstairs] = useState(0);
