@@ -57,7 +57,8 @@ app.post('/api/register', async (req, res) => {
     const token = jwt.sign({ id: result.insertedId }, SECRET_KEY, { expiresIn: 86400 }); // 24 hours
     res.status(201).json({ auth: true, token });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Registration error:', err);
+    res.status(500).json({ error: 'An error occurred during registration' });
   }
 });
 
@@ -75,7 +76,8 @@ app.post('/api/login', async (req, res) => {
     const token = jwt.sign({ id: user._id }, SECRET_KEY, { expiresIn: 86400 }); // 24 hours
     res.json({ auth: true, token });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'An error occurred during login' });
   }
 });
 
