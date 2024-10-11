@@ -7,15 +7,17 @@ import { LogOut } from 'lucide-react';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
-  const [showDashboard, setShowDashboard] = useState(false);
-  const [showStats, setShowStats] = useState(false);
+  const [currentView, setCurrentView] = useState('logger');
 
-  const handleLogin = () => setIsLoggedIn(true);
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    setCurrentView('logger');
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     setIsLoggedIn(false);
-    setShowDashboard(false);
-    setShowStats(false);
+    setCurrentView('logger');
   };
 
   return (
@@ -28,31 +30,34 @@ function App() {
           {isLoggedIn && (
             <div className="flex justify-center space-x-4">
               <button
-                onClick={() => {
-                  setShowDashboard(true);
-                  setShowStats(false);
-                }}
-                className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold rounded-full shadow-md hover:from-blue-600 hover:to-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75 transition-all duration-300"
-              >
-                Show Dashboard
-              </button>
-              <button
-                onClick={() => {
-                  setShowStats(true);
-                  setShowDashboard(false);
-                }}
-                className="px-6 py-2 bg-gradient-to-r from-green-500 to-teal-500 text-white font-semibold rounded-full shadow-md hover:from-green-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-75 transition-all duration-300"
-              >
-                Show Stats
-              </button>
-              <button
-                onClick={() => {
-                  setShowDashboard(false);
-                  setShowStats(false);
-                }}
-                className="px-6 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-semibold rounded-full shadow-md hover:from-yellow-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-75 transition-all duration-300"
+                onClick={() => setCurrentView('logger')}
+                className={`px-6 py-2 bg-gradient-to-r text-white font-semibold rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-all duration-300 ${
+                  currentView === 'logger' 
+                    ? 'from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 focus:ring-orange-500' 
+                    : 'from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-600 focus:ring-gray-400'
+                }`}
               >
                 Daily Logger
+              </button>
+              <button
+                onClick={() => setCurrentView('dashboard')}
+                className={`px-6 py-2 bg-gradient-to-r text-white font-semibold rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-all duration-300 ${
+                  currentView === 'dashboard' 
+                    ? 'from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 focus:ring-purple-500' 
+                    : 'from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-600 focus:ring-gray-400'
+                }`}
+              >
+                Dashboard
+              </button>
+              <button
+                onClick={() => setCurrentView('stats')}
+                className={`px-6 py-2 bg-gradient-to-r text-white font-semibold rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-all duration-300 ${
+                  currentView === 'stats' 
+                    ? 'from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 focus:ring-teal-500' 
+                    : 'from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-600 focus:ring-gray-400'
+                }`}
+              >
+                Stats
               </button>
               <button
                 onClick={handleLogout}
@@ -66,9 +71,9 @@ function App() {
         </div>
         {isLoggedIn ? (
           <div className="mt-8">
-            {showDashboard && <Dashboard />}
-            {showStats && <StatsDashboard />}
-            {!showDashboard && !showStats && <DailyStairLogger />}
+            {currentView === 'logger' && <DailyStairLogger />}
+            {currentView === 'dashboard' && <Dashboard />}
+            {currentView === 'stats' && <StatsDashboard />}
           </div>
         ) : (
           <div className="mt-8 space-y-8">
