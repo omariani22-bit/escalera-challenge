@@ -99,6 +99,98 @@ app.post('/api/log', verifyToken, async (req, res) => {
   }
 });
 
+app.get('/api/stats', verifyToken, async (req, res) => {
+  try {
+    const now = new Date();
+    const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    // Helper function to get user stats
+    const getUserStats = async (startDate, sortOrder) => {
+      return db.collection('daily_logs').aggregate([
+        { $match: { date: { $gte: startDate.toISOString().split('T')[0] } } },
+        { $group: {
+            _id: '$userId',
+            totalStairs: { $sum: { $add: ['$upstairs', '$downstairs'] } }
+          }
+        },
+        { $sort: { totalStairs: sortOrder } },
+        { $limit: 1 },
+        { $lookup: {
+            from: 'users',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'user'
+          }
+        },
+        { $unwind: '$user' },
+        { $project: {
+            username: '$user.username',
+            totalStairs: 1
+          }
+        }
+      ]).toArray();
+    };
+
+    const [
+      topUserWeek,
+      topUserMonth,
+      bottomUserWeek,
+      bottomUserMonth,
+      newestUser,
+      totalUsers,
+      topTwoUsers
+    ] = await Promise.all([
+      getUserStats(startOfWeek, -1),
+      getUserStats(startOfMonth, -1),
+      getUserStats(startOfWeek, 1),
+      getUserStats(startOfMonth, 1),
+      db.collection('users').find().sort({_id: -1}).limit(1).toArray(),
+      db.collection('users').countDocuments(),
+      db.collection('daily_logs').aggregate([
+        { $match: { date: { $gte: startOfMonth.toISOString().split('T')[0] } } },
+        { $group: {
+            _id: '$userId',
+            totalStairs: { $sum: { $add: ['$upstairs', '$downstairs'] } }
+          }
+        },
+        { $sort: { totalStairs: -1 } },
+        { $limit: 2 },
+        { $lookup: {
+            from: 'users',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'user'
+          }
+        },
+        { $unwind: '$user' },
+        { $project: {
+            username: '$user.username',
+            totalStairs: 1
+          }
+        }
+      ]).toArray(),
+      // Add more stats here
+    ]);
+
+    res.json({
+      topUserWeek: topUserWeek[0],
+      topUserMonth: topUserMonth[0],
+      bottomUserWeek: bottomUserWeek[0],
+      bottomUserMonth: bottomUserMonth[0],
+      newestChallenger: newestUser[0].username,
+      numberOfChallengers: totalUsers,
+      topTwoUsers,
+      // Additional stats
+      totalStairsThisMonth: topTwoUsers.reduce((sum, user) => sum + user.totalStairs, 0),
+      averageStairsPerUser: Math.round(topTwoUsers.reduce((sum, user) => sum + user.totalStairs, 0) / totalUsers),
+    });
+  } catch (err) {
+    console.error('Error fetching stats:', err);
+    res.status(500).json({ error: 'An error occurred while fetching stats' });
+  }
+});
+
 // New endpoint to get all logs (only accessible by authenticated users)
 app.get('/api/all-logs', verifyToken, async (req, res) => {
   try {
